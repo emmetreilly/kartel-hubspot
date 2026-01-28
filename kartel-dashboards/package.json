@@ -1,0 +1,20 @@
+{
+  "name": "kartel-dashboards",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "hs project upload",
+    "deploy": "hs project deploy",
+    "dev": "hs project dev"
+  },
+  "dependencies": {
+    "@hubspot/ui-extensions": "^0.12.0",
+    "react": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

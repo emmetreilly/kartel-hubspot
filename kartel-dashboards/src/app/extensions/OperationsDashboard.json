@@ -1,0 +1,14 @@
+{
+  "type": "crm-card",
+  "data": {
+    "title": "Operations",
+    "uid": "operations-dashboard-card",
+    "location": "crm.record.tab",
+    "module": {
+      "file": "OperationsDashboard.jsx"
+    },
+    "objectTypes": [
+      { "name": "deals" }
+    ]
+  }
+}

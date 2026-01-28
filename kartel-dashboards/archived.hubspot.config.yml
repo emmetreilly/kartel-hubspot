@@ -1,0 +1,6 @@
+defaultPortal: kartel
+portals:
+  - name: kartel
+    portalId: 242991070
+    authType: personalaccesskey
+    # Set HUBSPOT_ACCESS_TOKEN env var before running hs commands

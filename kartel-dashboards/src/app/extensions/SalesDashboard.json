@@ -1,0 +1,14 @@
+{
+  "type": "crm-card",
+  "data": {
+    "title": "Sales Dashboard",
+    "uid": "sales-dashboard-card",
+    "location": "crm.record.tab",
+    "module": {
+      "file": "SalesDashboard.jsx"
+    },
+    "objectTypes": [
+      { "name": "deals" }
+    ]
+  }
+}

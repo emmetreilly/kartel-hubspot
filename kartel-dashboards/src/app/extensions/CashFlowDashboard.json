@@ -1,0 +1,14 @@
+{
+  "type": "crm-card",
+  "data": {
+    "title": "Cash Flow",
+    "uid": "cashflow-dashboard-card",
+    "location": "crm.record.tab",
+    "module": {
+      "file": "CashFlowDashboard.jsx"
+    },
+    "objectTypes": [
+      { "name": "deals" }
+    ]
+  }
+}

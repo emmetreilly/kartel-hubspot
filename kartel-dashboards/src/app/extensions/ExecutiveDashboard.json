@@ -1,0 +1,14 @@
+{
+  "type": "crm-card",
+  "data": {
+    "title": "Executive Dashboard",
+    "uid": "executive-dashboard-card",
+    "location": "crm.record.tab",
+    "module": {
+      "file": "ExecutiveDashboard.jsx"
+    },
+    "objectTypes": [
+      { "name": "deals" }
+    ]
+  }
+}

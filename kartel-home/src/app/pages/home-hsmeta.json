@@ -1,0 +1,8 @@
+{
+  "uid": "kartel-dashboard-home",
+  "type": "page",
+  "config": {
+    "entrypoint": "/app/pages/Home.tsx",
+    "location": "home"
+  }
+}

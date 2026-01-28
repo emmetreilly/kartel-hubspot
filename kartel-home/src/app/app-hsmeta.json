@@ -1,0 +1,19 @@
+{
+  "uid": "kartel-home-app",
+  "type": "app",
+  "config": {
+    "name": "Kartel Home",
+    "description": "Custom dashboards for Kartel sales operations",
+    "distribution": "marketplace",
+    "auth": {
+      "type": "oauth",
+      "redirectUrls": ["https://app.hubspot.com"],
+      "requiredScopes": ["crm.objects.deals.read", "crm.schemas.deals.read"]
+    },
+    "permittedUrls": {
+      "fetch": ["https://api.hubapi.com"],
+      "iframe": [],
+      "img": []
+    }
+  }
+}

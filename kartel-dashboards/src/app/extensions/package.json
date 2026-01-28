@@ -1,0 +1,9 @@
+{
+  "name": "kartel-extensions",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "@hubspot/ui-extensions": "^0.12.0",
+    "react": "^18.2.0"
+  }
+}
