@@ -1,0 +1,24 @@
+{
+  "uid": "create_followup_task",
+  "type": "workflow-action",
+  "config": {
+    "actionUrl": "{{SERVERLESS_FUNCTION:createFollowUpTask}}",
+    "isPublished": true,
+    "supportedClients": [
+      {
+        "client": "WORKFLOWS"
+      }
+    ],
+    "inputFields": [],
+    "labels": {
+      "en": {
+        "actionName": "Create Follow-up Task (No Response)",
+        "actionDescription": "Creates a lightweight follow-up task for the deal owner. Used for deals lost due to no response - one more try before moving on.",
+        "actionCardContent": "Create final follow-up task for deal owner",
+        "inputFieldLabels": {},
+        "inputFieldDescriptions": {}
+      }
+    },
+    "objectTypes": ["DEAL"]
+  }
+}

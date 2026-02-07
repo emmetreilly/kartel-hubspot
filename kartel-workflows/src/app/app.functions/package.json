@@ -1,0 +1,8 @@
+{
+  "name": "kartel-workflow-actions",
+  "version": "1.0.0",
+  "description": "Custom workflow actions for Kartel CRM",
+  "dependencies": {
+    "@hubspot/api-client": "^11.0.0"
+  }
+}

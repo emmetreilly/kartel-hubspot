@@ -1,0 +1,10 @@
+{
+  "name": "createFollowUpTask",
+  "type": "function",
+  "config": {
+    "runtime": "nodejs18.x",
+    "entryPoint": "main",
+    "timeout": 30
+  },
+  "secrets": ["PRIVATE_APP_ACCESS_TOKEN"]
+}

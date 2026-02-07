@@ -1,0 +1,38 @@
+{
+  "uid": "create_reengagement_deal",
+  "type": "workflow-action",
+  "config": {
+    "actionUrl": "{{SERVERLESS_FUNCTION:createReengagementDeal}}",
+    "isPublished": true,
+    "supportedClients": [
+      {
+        "client": "WORKFLOWS"
+      }
+    ],
+    "inputFields": [
+      {
+        "typeDefinition": {
+          "name": "loss_reason",
+          "type": "string",
+          "fieldType": "text"
+        },
+        "supportedValueTypes": ["OBJECT_PROPERTY"],
+        "isRequired": true
+      }
+    ],
+    "labels": {
+      "en": {
+        "actionName": "Create Re-engagement Deal",
+        "actionDescription": "Creates a new deal in the Re-engagement pipeline associated with the company (company-level, not deal-level re-engagement)",
+        "actionCardContent": "Create re-engagement deal for lost deal",
+        "inputFieldLabels": {
+          "loss_reason": "Loss Reason"
+        },
+        "inputFieldDescriptions": {
+          "loss_reason": "Map to the deal's loss_reason property"
+        }
+      }
+    },
+    "objectTypes": ["DEAL"]
+  }
+}

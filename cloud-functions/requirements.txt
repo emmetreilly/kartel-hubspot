@@ -1,0 +1,18 @@
+# Cloud Functions dependencies
+functions-framework==3.*
+
+# Anthropic Claude API
+anthropic>=0.40.0
+
+# Google APIs
+google-auth>=2.0.0
+google-api-python-client>=2.0.0
+
+# HTTP requests
+requests>=2.28.0
+
+# SendGrid email
+sendgrid>=6.9.0
+
+# Local development
+python-dotenv>=1.0.0

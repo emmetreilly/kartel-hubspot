@@ -1,9 +1,9 @@
 {
-  "uid": "kartel-dashboards",
+  "uid": "kartel-workflows",
   "type": "app",
   "config": {
-    "name": "Kartel Dashboards",
-    "description": "Custom dashboards for Kartel sales operations",
+    "name": "Kartel Workflow Actions",
+    "description": "Custom workflow actions for Kartel CRM re-engagement automation",
     "distribution": "private",
     "auth": {
       "type": "oauth",
@@ -12,8 +12,7 @@
         "crm.objects.deals.read",
         "crm.objects.deals.write",
         "crm.objects.companies.read",
-        "crm.objects.contacts.read",
-        "crm.schemas.deals.read"
+        "automation"
       ]
     },
     "permittedUrls": {
