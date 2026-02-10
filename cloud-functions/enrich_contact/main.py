@@ -432,15 +432,6 @@ def enrich_contact(request):
         if not props.get('contact_type'):
             updates['contact_type'] = 'Unqualified Lead'
 
-        # Determine lead owner based on company tier
-        # Uses FORM data first (company_size dropdown), falls back to Apollo
-        owner_id = determine_lead_owner(
-            form_company_size,
-            apollo_company_size,
-            apollo_revenue,
-            is_decision_maker
-        )
-
         # Update contact in HubSpot
         if updates:
             print(f"Updating {len(updates)} fields for {email}")
@@ -472,6 +463,15 @@ def enrich_contact(request):
 
         # If lead_id provided, update lead properties and owner
         if lead_id:
+            # Determine lead owner based on company tier
+            # Uses FORM data first (company_size dropdown), falls back to Apollo
+            owner_id = determine_lead_owner(
+                form_company_size,
+                apollo_company_size,
+                apollo_revenue,
+                is_decision_maker
+            )
+
             lead_props = {}
             if props.get('company') or (apollo_data and apollo_data.get('company')):
                 lead_props['lead_company_name'] = props.get('company') or apollo_data.get('company')
