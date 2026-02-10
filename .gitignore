@@ -3,3 +3,29 @@ node_modules/
 .DS_Store
 *.log
 .claude/
+# Python
+__pycache__/
+*.pyc
+
+# Data files
+*.csv
+exports/
+verification_outputs/
+
+# Temp docs
+*_REPORT.md
+*_SUMMARY.md
+START_HERE.txt
+TASK_COMPLETE.txt
+
+# Old enrichment/classification scripts
+*.py
+!cloud-functions/**/*.py
+!kartel-dashboards/**/*.py
+!kartel-workflows/**/*.py
+
+# Documentation files
+*.txt
+*.md
+!README.md
+!cloud-functions/**/*.md
