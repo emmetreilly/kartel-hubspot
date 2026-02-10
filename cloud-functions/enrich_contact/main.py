@@ -1,11 +1,20 @@
 #!/usr/bin/env python3
 """
-Lead Enrichment Cloud Function
-Triggered when a Lead is created in HubSpot.
-- Gets associated contact
-- Enriches contact with Apollo data
+Contact/Lead Enrichment Cloud Function
+Triggered when a Contact OR Lead is created in HubSpot.
+
+For Contacts:
+- Enriches with Apollo data (job title, company, industry)
+- Sets decision_maker, lead_tier, priority_level, contact_type
+
+For Leads:
+- Enriches associated contact (same as above)
 - Routes lead to correct owner (Ben/Emmet/Tim)
-- Syncs contact properties to lead
+- Syncs enriched contact properties to lead
+
+Usage:
+- POST {"contact_id": "123"} - Enrich contact only
+- POST {"lead_id": "456"} - Enrich contact + route lead
 """
 
 import functions_framework
@@ -303,8 +312,12 @@ def update_lead_owner(lead_id, owner_id, lead_props=None):
 @functions_framework.http
 def enrich_contact(request):
     """
-    HTTP Cloud Function - Triggered when a Lead is created.
-    Gets the associated contact, enriches it, and routes the lead to the correct owner.
+    HTTP Cloud Function - Triggered when a Lead OR Contact is created.
+    Enriches contact with Apollo data and optionally routes lead to correct owner.
+
+    Accepts either:
+    - {"lead_id": "123"} - Enriches associated contact and routes lead
+    - {"contact_id": "456"} - Enriches contact only (no lead routing)
     """
     # CORS headers
     if request.method == 'OPTIONS':
@@ -318,22 +331,41 @@ def enrich_contact(request):
     headers_cors = {'Access-Control-Allow-Origin': '*'}
 
     try:
-        # Get lead ID from webhook
+        # Get lead_id OR contact_id from webhook
         data = request.get_json()
         lead_id = data.get('lead_id')
+        contact_id = data.get('contact_id')
 
-        if not lead_id:
-            return ({"error": "Missing lead_id"}, 400, headers_cors)
+        if not lead_id and not contact_id:
+            return ({"error": "Missing lead_id or contact_id"}, 400, headers_cors)
 
-        print(f"Processing lead: {lead_id}")
+        # If lead_id provided, get associated contact
+        if lead_id:
+            print(f"Processing lead: {lead_id}")
+            contact = get_lead_contact(lead_id)
+            if not contact:
+                return ({"error": "No contact associated with lead"}, 400, headers_cors)
+            contact_id = contact.get('id')
+            props = contact.get('properties', {})
 
-        # Get associated contact
-        contact = get_lead_contact(lead_id)
-        if not contact:
-            return ({"error": "No contact associated with lead"}, 400, headers_cors)
+        # If only contact_id provided, fetch contact directly
+        else:
+            print(f"Processing contact: {contact_id}")
+            headers = {
+                "Authorization": f"Bearer {HUBSPOT_TOKEN}",
+                "Content-Type": "application/json"
+            }
+            contact_url = f"{HUBSPOT_BASE}/crm/v3/objects/contacts/{contact_id}"
+            params = {
+                "properties": "email,firstname,lastname,company,jobtitle,seniority,company_size,industry,contact_type,timeline,use_case,client_use_case,hubspotscore"
+            }
+            contact_response = requests.get(contact_url, headers=headers, params=params)
 
-        contact_id = contact.get('id')
-        props = contact.get('properties', {})
+            if contact_response.status_code != 200:
+                return ({"error": f"Contact {contact_id} not found"}, 404, headers_cors)
+
+            contact = contact_response.json()
+            props = contact.get('properties', {})
         email = props.get('email')
 
         print(f"Found associated contact: {contact_id} ({email})")
@@ -425,49 +457,54 @@ def enrich_contact(request):
             if update_response.status_code != 200:
                 print(f"Warning: Failed to update contact: {update_response.status_code}")
 
-        # Build lead properties to update
-        lead_props = {}
-        if props.get('company') or (apollo_data and apollo_data.get('company')):
-            lead_props['lead_company_name'] = props.get('company') or apollo_data.get('company')
-        if props.get('company_size') or apollo_company_size:
-            lead_props['lead_company_size'] = props.get('company_size') or str(apollo_company_size)
-        if props.get('jobtitle') or (apollo_data and apollo_data.get('jobtitle')):
-            lead_props['lead_job_title'] = props.get('jobtitle') or apollo_data.get('jobtitle')
-        if props.get('industry') or updates.get('industry'):
-            lead_props['lead_industry'] = props.get('industry') or updates.get('industry')
-        if props.get('contact_type'):
-            lead_props['lead_company_type'] = props.get('contact_type')
-        if props.get('timeline'):
-            lead_props['lead_timeline'] = props.get('timeline')
-        # Check both use_case and client_use_case (form might map to either)
-        use_case_value = props.get('use_case') or props.get('client_use_case')
-        if use_case_value:
-            lead_props['lead_use_case'] = use_case_value
-
-        # Update lead with owner and properties
-        owner_name = "Ben" if owner_id == OWNERS["ben"] else ("Tim" if owner_id == OWNERS["tim"] else "Emmet")
-        print(f"Routing lead {lead_id} to {owner_name}")
-
-        if update_lead_owner(lead_id, owner_id, lead_props):
-            print(f"Successfully updated lead {lead_id}")
-        else:
-            print(f"Failed to update lead {lead_id}")
-
-        return ({
+        # Build response data
+        response_data = {
             "success": True,
-            "lead_id": lead_id,
             "contact_id": contact_id,
-            "owner_id": owner_id,
-            "owner_name": owner_name,
             "contact_fields_updated": list(updates.keys()),
-            "lead_fields_updated": list(lead_props.keys()),
             "routing": {
                 "form_company_size": form_company_size,
                 "apollo_company_size": apollo_company_size,
                 "apollo_revenue": apollo_revenue,
                 "is_decision_maker": is_decision_maker,
             }
-        }, 200, headers_cors)
+        }
+
+        # If lead_id provided, update lead properties and owner
+        if lead_id:
+            lead_props = {}
+            if props.get('company') or (apollo_data and apollo_data.get('company')):
+                lead_props['lead_company_name'] = props.get('company') or apollo_data.get('company')
+            if props.get('company_size') or apollo_company_size:
+                lead_props['lead_company_size'] = props.get('company_size') or str(apollo_company_size)
+            if props.get('jobtitle') or (apollo_data and apollo_data.get('jobtitle')):
+                lead_props['lead_job_title'] = props.get('jobtitle') or apollo_data.get('jobtitle')
+            if props.get('industry') or updates.get('industry'):
+                lead_props['lead_industry'] = props.get('industry') or updates.get('industry')
+            if props.get('contact_type'):
+                lead_props['lead_company_type'] = props.get('contact_type')
+            if props.get('timeline'):
+                lead_props['lead_timeline'] = props.get('timeline')
+            # Check both use_case and client_use_case (form might map to either)
+            use_case_value = props.get('use_case') or props.get('client_use_case')
+            if use_case_value:
+                lead_props['lead_use_case'] = use_case_value
+
+            # Update lead with owner and properties
+            owner_name = "Ben" if owner_id == OWNERS["ben"] else ("Tim" if owner_id == OWNERS["tim"] else "Emmet")
+            print(f"Routing lead {lead_id} to {owner_name}")
+
+            if update_lead_owner(lead_id, owner_id, lead_props):
+                print(f"Successfully updated lead {lead_id}")
+            else:
+                print(f"Failed to update lead {lead_id}")
+
+            response_data["lead_id"] = lead_id
+            response_data["owner_id"] = owner_id
+            response_data["owner_name"] = owner_name
+            response_data["lead_fields_updated"] = list(lead_props.keys())
+
+        return (response_data, 200, headers_cors)
 
     except Exception as e:
         print(f"Error: {str(e)}")
