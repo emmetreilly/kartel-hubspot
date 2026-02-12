@@ -23,6 +23,7 @@ import os
 
 HUBSPOT_TOKEN = os.getenv('HUBSPOT_ACCESS_TOKEN')
 APOLLO_KEY = os.getenv('APOLLO_API_KEY')
+SKIP_PERSONAL_EMAILS = os.getenv('SKIP_PERSONAL_EMAILS', 'true').lower() == 'true'  # Default: true
 HUBSPOT_BASE = "https://api.hubapi.com"
 
 # Owner IDs for routing
@@ -374,12 +375,17 @@ def enrich_contact(request):
         personal_domains = ['gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com', 'icloud.com', 'aol.com']
         is_personal_email = any(domain in email.lower() for domain in personal_domains) if email else False
 
-        # Enrich with Apollo (skip for personal emails)
+        # Enrich with Apollo (conditionally skip for personal emails based on config)
         apollo_data = None
-        if not is_personal_email and email:
-            apollo_data = enrich_with_apollo(email)
-        elif is_personal_email:
-            print(f"Personal email - skipping Apollo enrichment: {email}")
+        if email:
+            if is_personal_email and SKIP_PERSONAL_EMAILS:
+                print(f"Personal email - skipping Apollo enrichment (SKIP_PERSONAL_EMAILS=true): {email}")
+            elif is_personal_email and not SKIP_PERSONAL_EMAILS:
+                print(f"Personal email - attempting Apollo enrichment (SKIP_PERSONAL_EMAILS=false): {email}")
+                apollo_data = enrich_with_apollo(email)
+            else:
+                # Business email - always enrich
+                apollo_data = enrich_with_apollo(email)
 
         # Build updates (merge Apollo data with existing)
         updates = {}
@@ -453,6 +459,7 @@ def enrich_contact(request):
             "success": True,
             "contact_id": contact_id,
             "contact_fields_updated": list(updates.keys()),
+            "is_personal_email": is_personal_email,
             "routing": {
                 "form_company_size": form_company_size,
                 "apollo_company_size": apollo_company_size,

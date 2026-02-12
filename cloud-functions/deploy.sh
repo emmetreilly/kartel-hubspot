@@ -81,6 +81,7 @@ gcloud functions deploy enrich-contact \
   --entry-point enrich_contact \
   --timeout 120 \
   --memory 256MB \
+  --set-env-vars "SKIP_PERSONAL_EMAILS=false" \
   --set-secrets "HUBSPOT_ACCESS_TOKEN=HUBSPOT_ACCESS_TOKEN:latest,APOLLO_API_KEY=APOLLO_API_KEY:latest" \
   --allow-unauthenticated
 
